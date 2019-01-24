@@ -7,15 +7,13 @@ mapRob=[[0, 0, 0, 0, 0],
         [0, 0, 0, 0, 0],
         [0, 0, 0, 0, 0],
         [0, 0, 0, 0, 0]]
-
-
 #               СОЗДАНИЕ ПОЛЯ
 tk=Tk()
 canvas=Canvas(tk, width=300, height=300)
 canvas.pack()
 a=10
 b=10
-c=0
+
 for i in range(6):
     canvas.create_line(b,10,b,300)
     b+=60
@@ -25,16 +23,23 @@ for i in range(6):
 #               список роботов
 rob0=canvas.create_rectangle(5,5,15,15,fill='red')
 rob1=canvas.create_rectangle(65,5,75,15,fill='blue')
-sc=[[1,[0,0],[2,2],rob0,False,True],          #[index,[начальныекоорд],[цель],[номер][поворот][старт позишн],[endпозишн]
-    [2,[0,1],[4,3],rob1,False,False]]
-numb=0
+rob2=canvas.create_rectangle(135,5,145,15,fill='green')
+sc=[[1,[0,0],[4,1],rob0,False,True],          #[index,[начальныекоорд],[цель],[номер][поворот][старт позишн],[endпозишн]
+    [2,[0,1],[4,3],rob1,False,False],
+    [3,[0,2],[4,2],rob2, False, False]]
+topNum=0
+roblist=len(sc)
+fail=[]
+for i in range(roblist):
+    fail.append(0)
 #               КОНЕЦ ПОЛЯ
 def start():
     global sc,numb
-    if sc[numb][1][1]!=0 and sc[numb][5]==False:
+    if sc[numb][1][1]!=0 and sc[numb][5]==False :
         if mapRob[0][sc[numb][1][1]-1]==0:
-            sc[numb][1][1]=0
-            sc[numb][5] =True
+            sc[numb][1][1]-=1
+            if sc[numb][1][1]==0:
+                sc[numb][5] =True
             for k in range(0,60):
                 canvas.move(sc[numb][3], -1, 0)
                 tk.update()
@@ -46,12 +51,11 @@ def VertStep():
     CordEnd=sc[numb][2][0]
 
     if CordN!=CordEnd:
-        print(index, CordN, CordEnd)
         if mapRob[CordN+1][0]==0:
             mapRob[CordN + 1][0]=index
             mapRob[CordN][0]=0
             sc[numb][1][0]=CordN+1
-            for k in range(0,61):
+            for k in range(0,60):
                 canvas.move(sc[numb][3], 0, 1)
                 tk.update()
                 time.sleep(0.005)
@@ -59,14 +63,39 @@ def VertStep():
             time.sleep(StepTime)
             print('CLOSE')
 def povorot():
-    global sc, numb
+    global sc, numb,mapRob
     CordN = sc[numb][1][0]
     CordEnd = sc[numb][2][0]
+
+    CordX = sc[numb][1][1]
     per=sc[numb][4]
     if CordN == CordEnd and per==False:
         time.sleep(StepTime)
         sc[numb][4]=True
         print('povorot')
+"""
+def chekFail():
+    global fail,roblist
+    for i in range (roblist):
+        if fail[i]==3:
+            kk=mapRob[sc[i][1][0]][sc[i][1][1]+1]
+            numb=i
+            a=numb
+            while sc[numb][1][0]!=0:
+                final()
+                g=sc[numb][1][0]
+            while sc[numb][1][1]+1!=0:
+                FuckGoBAckVer()
+            GorStep()
+            numb=kk
+            while sc[numb-1][1][1]!=0:
+                final()
+            for j in range(sc[numb-1][1][1]-g):
+                FuckGoBAckVer()
+            numb=a
+          final()
+"""
+
 def GorStep():
     global sc, numb
     if sc[numb][1][0]==sc[numb][2][0]:
@@ -75,28 +104,105 @@ def GorStep():
         CordEnd=sc[numb][2][1]
         i=sc[numb][1][0]
         if CordN!=CordEnd:
-            print(index, CordN, CordEnd)
             if mapRob[i][CordN+1]==0:
                 mapRob[i][CordN+1]=index
                 mapRob[i][CordN]=0
                 sc[numb][1][1]=CordN+1
-                for k in range(0,61):
+                for k in range(0,60):
                     canvas.move(sc[numb][3], 1, 0)
                     tk.update()
                     time.sleep(0.005)
             else:
                 time.sleep(StepTime)
+                fail[numb]+=1
                 print('close')
-while c!=2:
-    for j in range(2):
+def GoBackGor():
+    global sc,mapRob,numb
+    CordX=sc[numb][1][1]
+    CordY = sc[numb][1][0]
+    index=sc[numb][0]
+    i = sc[numb][1][0]
+    if CordX+1!=len(mapRob) and CordY!=0:
+        if mapRob[i][CordX+1] == 0:
+            mapRob[i][CordX + 1]=index
+            mapRob[i][CordX]=0
+            sc[numb][1][1] = CordX + 1
+            for k in range(0,60):
+                    canvas.move(sc[numb][3], 1, 0)
+                    tk.update()
+                    time.sleep(0.005)
+        else:
+            time.sleep(StepTime)
+            print('CLOSE')
+def GoBAckVer():
+    global sc,mapRob,numb
+    CordY = sc[numb][1][0]
+    CordX = sc[numb][1][1]
+    index = sc[numb][0]
+    Cordnulindx=len(mapRob)-1
+    if CordY != 0 and CordX== Cordnulindx:
+        if mapRob[CordY-1][Cordnulindx]==0:
+            mapRob[CordY-1][Cordnulindx] =index
+            mapRob[CordY][Cordnulindx] =0
+            sc[numb][1][0]=CordY-1
+            for k in range(0,60):
+                canvas.move(sc[numb][3], 0, -1)
+                tk.update()
+                time.sleep(0.005)
+        else:
+            time.sleep(StepTime)
+            print('CLOSE')
+
+def final():
+    global sc, mapRob,numb
+    CordX=sc[numb][1][1]
+    index=sc[numb][0]
+    CordY = sc[numb][1][0]
+    if CordY==0 and CordX!=0:
+        if mapRob[CordY][CordX-1]==0:
+            mapRob[CordY][CordX - 1] =index
+            mapRob[CordY][CordX] =0
+            sc[numb][1][1] = CordX - 1
+            for k in range(0,60):
+                canvas.move(sc[numb][3], -1, 0)
+                tk.update()
+                time.sleep(0.005)
+    if CordX==0 and CordY==0:
+        sc[numb][5]=True
+        sc[numb][4]=False
+
+h=0
+c=0
+while c!=roblist:
+    for j in range(roblist):
         numb =j
         start()
         VertStep()
         povorot()
+#        chekFail()
         GorStep()
-        print(c,mapRob)
+        print(numb)
     if mapRob[sc[numb][2][0]][sc[numb][2][1]]==sc[numb][0] :
         c+=1
-
-
+print('ezdone')
+while h!=roblist:
+    for j in range(roblist):
+        numb=j
+        GoBackGor()
+        povorot()
+        GoBAckVer()
+        povorot()
+        final()
+        for i in range (roblist):
+            if mapRob[0][i]!=0:  # -1 т.к индекс емае
+                h += 1
+        if h==roblist:
+            for i in range(1,roblist):
+                sc[i][4]=False
+                sc[i][5]=False
+            break
+        else:
+            h=0
+for i in range (3):
+    print(sc[i])
 tk.mainloop()
