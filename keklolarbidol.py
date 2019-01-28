@@ -24,14 +24,11 @@ for i in range(6):
 rob0=canvas.create_rectangle(5,5,15,15,fill='red')
 rob1=canvas.create_rectangle(65,5,75,15,fill='blue')
 rob2=canvas.create_rectangle(125,5,135,15,fill='green')
-sc=[[1,[0,0],[4,1],rob0,False,True,False],          #[index,[начальныекоорд],[цель],[номер][поворот][старт позишн],[endпозишн]
-    [2,[0,1],[4,2],rob1,False,False,False],
-    [3,[0,2],[4,3],rob2, False, False,False]]
-topNum=0
+sc=[[1,[0,0],[4,1],rob0,[False,False],True,False],          #[index,[начальныекоорд],[цель],[номер][поворот][старт позишн],[endпозишн],p
+    [2,[0,1],[4,2],rob1,[False,False],False,False],
+    [3,[0,2],[4,3],rob2, [False,False], False,False]]
+
 roblist=len(sc)
-fail=[]
-for i in range(roblist):
-    fail.append(0)
 #               КОНЕЦ ПОЛЯ
 def start():
     global sc,numb
@@ -66,15 +63,17 @@ def povorot():
     global sc, numb,mapRob
     CordN = sc[numb][1][0]
     CordEnd = sc[numb][2][0]
-
-    CordX = sc[numb][1][1]
-    per=sc[numb][4]
-    if CordN == CordEnd and per==False:
+    if CordN == CordEnd and sc[numb][4][0]==False:
         time.sleep(StepTime)
-        sc[numb][4]=True
+        sc[numb][4][0]=True
         print('povorot')
-
-
+    elif sc[numb][1][1] == len(mapRob) - 1 and sc[numb][4][1] == False:
+        time.sleep(StepTime)
+        sc[numb][4][1]=True
+        print('povor2')
+    elif CordN==0 and (sc[numb][1][1]==0 or sc[numb][1][1]==len(mapRob)-1):
+        time.sleep(StepTime)
+        print('gg')
 def GorStep():
     global sc, numb
     if sc[numb][1][0]==sc[numb][2][0]:
@@ -95,6 +94,7 @@ def GorStep():
                 time.sleep(StepTime)
                 fail[numb]+=1
                 print('close')
+
 def GoBackGor():
     global sc,mapRob,numb
     CordX=sc[numb][1][1]
@@ -160,7 +160,6 @@ while h!=roblist:
             VertStep()
             povorot()
             GorStep()
-
         if mapRob[sc[numb][2][0]][sc[numb][2][1]]==sc[numb][0] :
             sc[numb][6]=True
             time.sleep(1)
@@ -174,15 +173,13 @@ while h!=roblist:
     for i in range (roblist):
         if mapRob[0][i]!=0:  # -1 т.к индекс емае
             h += 1
-            print(h)
+
     if h==roblist:
         for i in range(1,roblist):
             sc[i][4]=False
             sc[i][5]=False
-        print(h)
+
     else:
         h=0
 
-for i in range (3):
-    print(sc[i])
 tk.mainloop()
